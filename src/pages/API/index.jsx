@@ -2,40 +2,31 @@ import { useEffect, useState } from 'preact/hooks';
 import preactLogo from '../../assets/preact.svg';
 import '../../style.css';
 import useSWR from 'swr';
-// import fetch from 'unfetcher'
-const url = 'https://swapi.dev/api/people';
+
+const url = 'https://swapi.dev/api/people/1';
 const fetchData = async (url) => {
     try {
-        const response = await fetch(url, {headers: {
-          'Accept': 'application/activity+json',
-        },});
+        const response = await fetch(url, {
+            headers: {
+                'Accept': 'application/json',
+            },
+        })
         const result = await response.json();
-        return (result);
+        console.log('fetchData',result)
+        return result;
     } catch (error) {
         console.error("Error fetching data:", error);
     }
 };
 
 export function API() {
-    const [loading, setLoading] = useState(true);
-    const [hasData, setHasData] = useState(null);
-
-    if (loading) {
-        useEffect( () => {
-            const { data, error, isLoading } = useSWR('https://swapi.dev/api/people/1', () => fetchData);
-        
-            if (error) {
-                console.log('error', error);
-            }
-            if (isLoading) {
-                console.log('isLoading', isLoading);
-            }
-            console.log('data', data);
-            setHasData(data)
-            setLoading(false)
-        }, []);
+    const { data, error, isLoading } = useSWR(url, () => fetchData(url));
+    if ( !error && !isLoading) {
+        console.log('data', data)
     }
-    
+    if ( data ) {
+        console.log('data', data)
+    }
 	return (
 		<div class="swapi">
 			<a href="https://preactjs.com" target="_blank">
@@ -43,7 +34,8 @@ export function API() {
 			</a>
 			<h1>SWAPI </h1>
 			<section>
-				{loading && <p>Loading...</p>}
+				{isLoading && <p>Loading...</p>}
+				{data && <p>{data.name}</p>}
 			</section>
 		</div>
 	);
